@@ -1,0 +1,373 @@
+package com.szht.controller;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.szht.po.*;
+import com.szht.service.HomePageService;
+import com.szht.utils.UUidUtils;
+import net.sf.json.JSONArray;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import javax.annotation.Resource;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import javax.xml.transform.Source;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.math.MathContext;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+@Controller
+public class HomePageController {
+    @Resource(name = "homepageservice")
+    private HomePageService homePageService;
+    @Autowired
+    private UUidUtils uUidUtils;
+
+    @RequestMapping(value = "/gocrgkpage", method = RequestMethod.GET)
+    public String gocrgkpage(
+            @RequestParam(value = "f") String f,
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
+        String url = null;
+        String path = request.getContextPath();
+        String basePath = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + path;
+        if (f != null && "crgk".equals(f)) {
+            url = basePath + "/img/crgk.jpg";
+        } else if (f != null && "wljy".equals(f)) {
+            url = basePath + "/img/wljy.jpg";
+        } else if (f != null && "gjkfdx".equals(f)) {
+            url = basePath + "/img/gjkfdx.jpg";
+        } else if (f != null && "zk".equals(f)) {
+            url = basePath + "/img/zk.jpg";
+        }
+        if (url != null) {
+            request.setAttribute("imgUrl", url);
+            request.setAttribute("msg", "y");
+        }
+        return "crgkpage";
+    }
+
+    @RequestMapping(value = "/gozygqz", method = RequestMethod.GET)
+    public String gozygqz(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
+        return "zygqzpage";
+    }
+
+    @RequestMapping(value = "/getzkzydata", method = RequestMethod.GET)
+    public String getzkzydata(
+            Integer page,
+            Integer limit,
+            HttpServletResponse response,
+            HttpServletRequest request
+    ) {
+        response.setContentType("text/html;charset=utf-8");
+        response.setCharacterEncoding("UTF-8");
+        List<Zkyxzy> yxzyresult = new ArrayList<>();
+        int count = 0;
+        Object lbmc = request.getParameter("lbmc");
+        Object zymc = request.getParameter("zymc")==null?"":request.getParameter("zymc").trim();
+        Object xs = request.getParameter("xs")==null?"":request.getParameter("xs").trim();
+        String isquery = request.getParameter("isquery");
+        if ("y".equals(isquery)) {
+            yxzyresult = homePageService.getqueryzkzy(page, limit, lbmc, zymc, xs);
+            count = homePageService.getZykQueryCount(lbmc, zymc, xs);
+        } else if (!"y".equals(isquery) || isquery == null) {
+            yxzyresult = homePageService.getzkyxzydatanoquery(page, limit);
+            count = homePageService.getzkyxzycount();
+        }
+        List<Zkzylb> zylb = homePageService.getzkzylbdata();
+        List<Zkalldata> resultList = new ArrayList<>();
+        HashMap<String, Object> resultmap = new HashMap<>();
+        for (Zkzylb lb : zylb) {
+            for (Zkyxzy zy : yxzyresult) {
+                if (lb.getZylbdm().equals(zy.getZylb())) {
+                    Zkalldata zkalldata = new Zkalldata();
+                    zkalldata.setZylbmc(lb.getZylbmc());
+                    zkalldata.setZymc(zy.getZymc());
+                    zkalldata.setZyxs(zy.getZyxs());
+                    resultList.add(zkalldata);
+                }
+            }
+        }
+        resultmap.put("code", 0);
+        resultmap.put("mg", "");
+        resultmap.put("count", count);
+        JSONArray array = JSONArray.fromObject(resultList);
+        resultmap.put("data", array);
+        PrintWriter writer = null;
+        try {
+            writer = response.getWriter();
+            writer.println(JSONObject.toJSONString(resultmap));
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            writer.flush();
+            writer.close();
+        }
+        return null;
+    }
+
+    @RequestMapping(value = "/getzkyxzylb", method = RequestMethod.POST)
+    public String getzkyxzylb(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
+        response.setContentType("text/html;charset=utf-8");
+        response.setCharacterEncoding("utf-8");
+        List<Zkzylb> lbList = homePageService.getzkyxzylb();
+        PrintWriter writer = null;
+        try {
+            writer = response.getWriter();
+            if (lbList.size() > 0) {
+                writer.println(JSONObject.toJSONString(lbList));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            writer.flush();
+            writer.close();
+        }
+        return null;
+    }
+
+    @RequestMapping(value = "/checkUserisxk", method = RequestMethod.POST)
+    public String checkUserisxk(
+            @RequestParam("lbmc") String lbmc,
+            @RequestParam("zymc") String zymc,
+            @RequestParam("zyxs") String zyxs,
+            @RequestParam("flag") String fl,
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
+        response.setContentType("text/html;charset=utf-8");
+        response.setCharacterEncoding("utf-8");
+        HttpSession session = request.getSession();
+        PrintWriter writer = null;
+        try {
+            writer = response.getWriter();
+            if (session == null) {
+                writer.println("sn");
+            } else if (session != null) {
+                User user = (User) session.getAttribute("user");
+                List<Zkuserzyk> zkuserzyList = homePageService.getUserxkzyByphone(user.getUserphone());
+                if (zkuserzyList.size() > 0) {
+                    ArrayList<Zkuserzyk> list = new ArrayList<>();
+                    HashMap<String, Object> resultMap = new HashMap<>();
+                    for (Zkuserzyk zyk : zkuserzyList) {
+                        Zkuserzyk zkuserzyk = new Zkuserzyk();
+                        zkuserzyk.setUserzyklbmc(zyk.getUserzyklbmc());
+                        zkuserzyk.setUserzygrad(zyk.getUserzygrad());
+                        list.add(zkuserzyk);
+                    }
+                    resultMap.put("msg", "yx");
+                    resultMap.put("zydata", list);
+                    writer.println(JSONObject.toJSONString(resultMap));
+                } else if (zkuserzyList.size() <= 0) {
+                    //没选课，开始存储课城
+                    String userzyklbdm = homePageService.getUserzykDmByname(lbmc, fl);
+                    String userphone = user.getUserphone();
+                    String userzygrad = null;
+                    if ("zk".equals(fl.trim())) {
+                        userzygrad = "专科";
+                    } else if ("bk".equals(fl.trim())) {
+                        userzygrad = "本科";
+                    }
+                    String id = uUidUtils.getUUid();
+                    int flag = homePageService.saveUserZkZy(id, userzyklbdm, zymc, zyxs, userphone, userzygrad);
+                    HashMap<String, Object> map = new HashMap<>();
+                    if (flag > 0) {
+                        map.put("msg", "suc");
+                        writer.println(JSONObject.toJSONString(map));
+                    } else {
+                        map.put("msg", "n");
+                        writer.println(JSONObject.toJSONString(map));
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            writer.flush();
+            writer.close();
+        }
+        return null;
+    }
+
+    @RequestMapping(value = "/queryzkkc", method = RequestMethod.GET)
+    public String queryzkkc(
+            @RequestParam("lbmc") String lbmc,
+            @RequestParam("zymc") String zymc,
+            @RequestParam("xs") String xs,
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) throws Exception {
+        response.setContentType("text/html;charset=utf-8");
+        response.setCharacterEncoding("utf-8");
+        List<Zkyxzy> querydata = homePageService.queryzkkc(lbmc, zymc, xs);
+        request.setAttribute("lbmc", lbmc);
+        request.setAttribute("zymc", zymc);
+        request.setAttribute("xs", xs);
+        request.setAttribute("isquery", "y");
+        request.setAttribute("querydata", querydata);
+        request.getRequestDispatcher("/getzkzydata").forward(request, response);
+        return null;
+    }
+
+    //专起本
+    @RequestMapping(value = "/gozyzqb", method = RequestMethod.GET)
+    public String gozyzqb() {
+        return "zyzqbpage";
+    }
+
+    @RequestMapping(value = "/getbkyxzylb", method = RequestMethod.POST)
+    public String getbkyxzylb(
+            HttpServletResponse response,
+            HttpServletRequest request
+    ) {
+        response.setContentType("text/html;charset=utf-8");
+        response.setCharacterEncoding("utf-8");
+        List<Bkzylb> bklbList = homePageService.getbkyxzylb();
+        PrintWriter writer = null;
+        try {
+            writer = response.getWriter();
+            if (bklbList.size() > 0) {
+                writer.println(JSONObject.toJSONString(bklbList));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            writer.flush();
+            writer.close();
+        }
+        return null;
+    }
+
+    @RequestMapping(value = "/getbkzydata", method = RequestMethod.GET)
+    public String getbkzydata(
+            Integer page,
+            Integer limit,
+            HttpServletResponse response,
+            HttpServletRequest request
+    ) {
+        response.setContentType("text/html;charset=utf-8");
+        response.setCharacterEncoding("UTF-8");
+        int count = 0;
+        Object lbmc = request.getParameter("lbmc");
+        Object zymc = request.getParameter("zymc")==null?"":request.getParameter("zymc").trim();
+        Object xs = request.getParameter("xs")==null?"":request.getParameter("xs").trim();
+        String isquery = request.getParameter("isquery");
+        List<Bkyxzy> yxzyresult = new ArrayList<>();
+        if ("y".equals(isquery)) {
+            yxzyresult = homePageService.getquerybkzy(page, limit, lbmc, zymc, xs);
+            count = homePageService.getBkZykQueryCount(lbmc, zymc, xs);
+        } else if (!"y".equals(isquery) || isquery == null) {
+            yxzyresult = homePageService.getzqbzydata(page, limit);
+            count = homePageService.getzqbzycount();
+        }
+        List<Bkzylb> bklblist = homePageService.getzqbzylbdata();
+        List<Zkalldata> resultList = new ArrayList<>();
+        HashMap<String, Object> resultmap = new HashMap<>();
+        for (Bkzylb lb : bklblist) {
+            for (Bkyxzy zy : yxzyresult) {
+                if (lb.getZylbdm().equals(zy.getZylb())) {
+                    Zkalldata zkalldata = new Zkalldata();
+                    zkalldata.setZylbmc(lb.getZylbmc());
+                    zkalldata.setZymc(zy.getZymc());
+                    zkalldata.setZyxs(zy.getZyxs());
+                    resultList.add(zkalldata);
+                }
+            }
+        }
+        resultmap.put("code", 0);
+        resultmap.put("mg", "");
+        resultmap.put("count", count);
+        JSONArray array = JSONArray.fromObject(resultList);
+        resultmap.put("data", array);
+        PrintWriter writer = null;
+        try {
+            writer = response.getWriter();
+            writer.println(JSONObject.toJSONString(resultmap));
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            writer.flush();
+            writer.close();
+        }
+        return null;
+    }
+
+    //我的课程
+    @RequestMapping(value = "/gomycourse", method = RequestMethod.GET)
+    public String gomycourse(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
+        return "myCourse";
+    }
+
+    @RequestMapping(value = "/getmycoursedata", method = RequestMethod.GET)
+    public String getmycoursedata(
+            Integer page,
+            Integer limit,
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
+        response.setContentType("text/html;charset=utf-8");
+        response.setCharacterEncoding("UTF-8");
+        List<Zkuserzyk> mycourseList = homePageService.getMyCoursedata(page, limit);
+        int count = homePageService.getuserzycount();
+        String mycourselbmc = null;
+        ArrayList<Mycourse> mycourses = new ArrayList<>();
+        HashMap<String, Object> resultmap = new HashMap<>();
+        for (Zkuserzyk mycour : mycourseList) {
+            Zkuserzyk zkuserzyk = new Zkuserzyk();
+            zkuserzyk.setUserzyklbdm(mycour.getUserzyklbdm());
+            zkuserzyk.setUserzyklbmc(mycour.getUserzyklbmc());
+            zkuserzyk.setUserzygrad(mycour.getUserzygrad());
+            zkuserzyk.setUserzykxs(mycour.getUserzykxs());
+            zkuserzyk.setUserphone(mycour.getUserphone());
+            zkuserzyk.setXktime(mycour.getXktime());
+            if ("本科".equals(zkuserzyk.getUserzygrad())) {
+                mycourselbmc = homePageService.getbklbmcBylbdm(zkuserzyk.getUserzyklbdm());
+            } else if ("专科".equals(zkuserzyk.getUserzygrad())) {
+                mycourselbmc = homePageService.getzklbmcBylbdm(zkuserzyk.getUserzyklbdm());
+            }
+            Mycourse mycourse = new Mycourse();
+            mycourse.setUserzyklbmc(mycourselbmc);
+            mycourse.setUserzykmc(zkuserzyk.getUserzyklbmc());
+            mycourse.setUserphone(zkuserzyk.getUserphone());
+            mycourse.setUserzykxs(zkuserzyk.getUserzykxs());
+            mycourse.setUserzygrad(zkuserzyk.getUserzygrad());
+            mycourse.setXktime(zkuserzyk.getXktime());
+            mycourses.add(mycourse);
+        }
+        resultmap.put("code", 0);
+        resultmap.put("mg", "");
+        resultmap.put("count", count);
+        JSONArray array = JSONArray.fromObject(mycourses);
+        resultmap.put("data", array);
+        PrintWriter writer = null;
+        try {
+            writer = response.getWriter();
+            writer.println(JSONObject.toJSONString(resultmap));
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            writer.flush();
+            writer.close();
+        }
+        return null;
+    }
+}

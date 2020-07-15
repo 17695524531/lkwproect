@@ -1,0 +1,58 @@
+body,html{
+	padding: 0px;
+	margin: 0px;
+	width: 100%;
+	height: 100%;
+	
+}
+.el-header, .el-footer {
+    text-align: right;
+    line-height: 60px;
+  }
+ .layui-nav{
+    	text-align: right;
+  }
+.container a{
+	text-decoration: none;
+}
+#box{
+	width: 100%;
+	height: 100%;
+}
+.container{
+	width: 100%;
+	height: 100%;
+	padding: 0px;
+	margin: 0px;
+}
+.el-header{
+	margin: 0px;
+	padding: 0px;
+}
+.layui-nav{
+
+}
+#left{
+	margin-left: -100%x;
+}
+
+.layui-tab-brief>.layui-tab-more li.layui-this:after, .layui-tab-brief>.layui-tab-title .layui-this:after {
+    border: none;
+    border-radius: 0;
+    /* border-bottom: 2px solid #5FB878; */
+}
+
+.layui-tab-brief>.layui-tab-title .layui-this {
+    color:black;
+}
+.layui-tab-title  li{
+	margin-top: -120px;
+	padding-top: -40px;
+	padding: 0px;
+	
+}
+.el-breadcrumb {
+	margin-top: -15px;
+    font-size: 14px;
+    line-height: 25px;
+}

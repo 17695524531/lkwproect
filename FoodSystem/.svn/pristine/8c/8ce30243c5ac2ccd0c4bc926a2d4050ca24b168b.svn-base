@@ -1,0 +1,125 @@
+package com.szht.serviceimpl;
+
+import com.szht.dao.HomePageDao;
+import com.szht.po.Zkalldata;
+import com.szht.po.Zkuserzyk;
+import com.szht.po.Zkyxzy;
+import com.szht.po.Zkzylb;
+import com.szht.service.HomePageService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Service("homepageservice")
+public class HomePageServieImpl implements HomePageService {
+    @Autowired
+    private HomePageDao homePageDao;
+
+    @Override
+    public List<Zkzylb> getzkzylbdata() {
+        return homePageDao.getzkzylbdata();
+    }
+
+    @Override
+    public int getzkyxzycount() {
+        return homePageDao.getzkyxzycount();
+    }
+
+    @Override
+    public List<Zkzylb> getzkyxzylb() {
+        return homePageDao.getzkyxzylb();
+    }
+
+    @Override
+    public List<Zkuserzyk> getUserxkzyByphone(String userphone) {
+        return homePageDao.getUserxkzyByphone(userphone.trim());
+    }
+
+    @Override
+    public String getUserzykDmByname(String lbmc) {
+        return homePageDao.getUserzykDmByname(lbmc.trim());
+    }
+
+    @Override
+    public int saveUserZkZy(String id, String userzyklbdm, String zymc, String zyxs, String userphone, String userzygrad) {
+        return homePageDao.saveUserZkZy(id.trim(),userzyklbdm.trim(),zymc.trim(),zyxs.trim(),userphone.trim(),userzygrad.trim());
+    }
+
+    @Override
+    public List<Zkyxzy> queryzkkc(String lb, String zymc, String xs) {
+        String lbdm=null;
+        List<Zkyxzy> list=new ArrayList<>();
+        list= homePageDao.queryzkkc(lb, zymc, xs);
+        return list;
+    }
+
+    @Override
+    public List<Zkyxzy> getzkyxzydatanoquery(Integer page, Integer limit) {
+        Integer pagesize=(page-1)*limit+1;
+        Integer rowcount=page*limit;
+        return homePageDao.getzkyxzydata(pagesize, rowcount);
+    }
+
+    @Override
+    public List<Zkyxzy> getqueryzkzy(Integer page, Integer limit, Object lbmc, Object zymc, Object xs) {
+        String xsmc=String.valueOf(xs);
+        String lb=String.valueOf(lbmc);
+        String zy=String.valueOf(zymc);
+        Integer pagesize=(page-1)*limit+1;
+        Integer rowcount=page*limit;
+        if("全部".equals(lb)){
+            lb="00";
+        }
+        if("经济类".equals(lb.trim())){
+            lb="zkjj0000000000000000000000000001";
+        }
+        if("管理类".equals(lb.trim())){
+            lb="zkgl0000000000000000000000000001";
+        }
+        if("工程类".equals(lb.trim())){
+            lb="zkgc0000000000000000000000000001";
+        }
+        if("教育类".equals(lb.trim())){
+            lb="zkjy0000000000000000000000000001";
+        }
+        if("医学类".equals(lb.trim())){
+            lb="zkyx0000000000000000000000000001";
+        }
+        if("艺术类".equals(lb.trim())){
+            lb="zkys0000000000000000000000000001";
+        }
+        return homePageDao.getqueryzkyxzydata(pagesize,rowcount,lb,zy,xsmc);
+    }
+
+    @Override
+    public int getZykQueryCount(Object lbmc, Object zymc, Object xs) {
+        String xsmc=String.valueOf(xs);
+        String lb=String.valueOf(lbmc);
+        String zy=String.valueOf(zymc);
+        if("全部".equals(lb)){
+            lb="00";
+        }
+        if("经济类".equals(lb.trim())){
+            lb="zkjj0000000000000000000000000001";
+        }
+        if("管理类".equals(lb.trim())){
+            lb="zkgl0000000000000000000000000001";
+        }
+        if("工程类".equals(lb.trim())){
+            lb="zkgc0000000000000000000000000001";
+        }
+        if("教育类".equals(lb.trim())){
+            lb="zkjy0000000000000000000000000001";
+        }
+        if("医学类".equals(lb.trim())){
+            lb="zkyx0000000000000000000000000001";
+        }
+        if("艺术类".equals(lb.trim())){
+            lb="zkys0000000000000000000000000001";
+        }
+        return homePageDao.getZykQueryCount(lb,zy,xsmc);
+    }
+
+}

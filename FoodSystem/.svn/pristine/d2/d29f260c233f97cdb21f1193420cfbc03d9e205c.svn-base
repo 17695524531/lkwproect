@@ -1,0 +1,32 @@
+package com.szht.service;
+
+import com.szht.po.Zkalldata;
+import com.szht.po.Zkuserzyk;
+import com.szht.po.Zkyxzy;
+import com.szht.po.Zkzylb;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+
+public interface HomePageService {
+
+    List<Zkzylb> getzkzylbdata();
+
+    int getzkyxzycount();
+
+    List<Zkzylb> getzkyxzylb();
+
+    List<Zkuserzyk> getUserxkzyByphone(String userphone);
+
+    String getUserzykDmByname(String lbmc);
+
+    int saveUserZkZy(String id, String userzyklbdm, String zymc, String zyxs, String userphone, String userzygrad);
+
+    List<Zkyxzy> queryzkkc(String lb, String zymc, String xs);
+
+    List<Zkyxzy> getzkyxzydatanoquery( Integer page, Integer limit);
+
+    List<Zkyxzy> getqueryzkzy(Integer page, Integer limit, Object lbmc, Object zymc, Object xs);
+
+    int getZykQueryCount(Object lbmc, Object zymc, Object xs);
+}

@@ -1,0 +1,83 @@
+package com.szht.controller;
+
+import com.szht.po.Zkalldata;
+import com.szht.po.Zkyxzy;
+import com.szht.po.Zkzylb;
+import com.szht.service.HomePageService;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.transform.Source;
+import java.util.ArrayList;
+import java.util.List;
+
+@Controller
+public class HomePageController {
+    @Resource(name = "homepageservice")
+    private HomePageService homePageService;
+
+    @RequestMapping(value = "/gocrgkpage", method = RequestMethod.GET)
+    public String gocrgkpage(
+            @RequestParam(value = "f") String f,
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
+        String url = null;
+        String path = request.getContextPath();
+        String basePath = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + path;
+        if (f != null && "crgk".equals(f)) {
+            url = basePath + "/img/crgk.jpg";
+        } else if (f != null && "wljy".equals(f)) {
+            url = basePath + "/img/wljy.jpg";
+        } else if (f != null && "gjkfdx".equals(f)) {
+            url = basePath + "/img/gjkfdx.jpg";
+        } else if (f != null && "zk".equals(f)) {
+            url = basePath + "/img/zk.jpg";
+        }
+        if (url != null) {
+            request.setAttribute("imgUrl", url);
+        }
+        return "crgkpage";
+    }
+
+    @RequestMapping(value = "/gozygqz", method = RequestMethod.GET)
+    public String gozygqz(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
+        return "zygqzpage";
+    }
+
+    @RequestMapping(value = "/getzkzydata", method = RequestMethod.GET)
+    public String getzkzydata(
+            int page,
+            int limit,
+            HttpServletResponse response,
+            HttpServletRequest request
+    ) {
+        List<Zkyxzy> yxzyresult = homePageService.getzkyxzydata(page,limit);
+        List<Zkzylb> zylb = homePageService.getzkzylbdata();
+        int count = homePageService.getzkyxzycount();
+        List<Zkalldata> resultList = new ArrayList<>();
+        for (Zkzylb lb : zylb) {
+            for (Zkyxzy zy : yxzyresult) {
+                if (lb.getZylbdm().equals(zy.getZylb())) {
+                    Zkalldata zkalldata = new Zkalldata();
+                    zkalldata.setZylbmc(lb.getZylbmc());
+                    zkalldata.setZymc(zy.getZymc());
+                    zkalldata.setZyxs(zy.getZyxs());
+                    resultList.add(zkalldata);
+                }
+            }
+        }
+        System.out.println("yxzyresult=="+yxzyresult);
+        System.out.println("zylb="+zylb);
+        System.out.println("count"+count);
+        return null;
+    }
+}

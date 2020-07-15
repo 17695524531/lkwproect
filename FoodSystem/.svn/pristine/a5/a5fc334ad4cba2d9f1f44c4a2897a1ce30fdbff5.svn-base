@@ -1,0 +1,23 @@
+html,body{
+	margin: 0px;
+	padding: 0px;
+}
+.el-card {
+    border: 1px solid  #EBEEF5;
+background-color:#FFF;
+color:#303133;
+    -webkit-transition: .3s;
+    transition: .3s;
+    margin-top: 40px;
+}
+.headtitle{
+	font-family: "楷体";
+	font-size: 24px;
+	color: #13CE66;
+}
+textarea{
+	resize: none;
+}
+
+
+

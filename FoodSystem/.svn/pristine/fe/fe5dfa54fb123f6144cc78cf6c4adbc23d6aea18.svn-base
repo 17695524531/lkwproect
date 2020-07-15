@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.szht.dao.HomePageDao">
+    <resultMap id="zkyxmap" type="com.szht.po.Zkyxzy">
+        <id property="id" column="ID"></id>
+        <result property="zylb" column="ZK_ZYLB"></result>
+        <result property="zymc" column="ZK_ZYMC"></result>
+        <result property="zyxs" column="ZK_ZYXS"></result>
+    </resultMap>
+
+    <resultMap id="zylbmap" type="com.szht.po.Zkzylb">
+        <id property="id" column="ID"></id>
+        <result property="zylbdm" column="ZK_ZYLBDM"></result>
+        <result property="zylbmc" column="ZK_ZYLBMC"></result>
+    </resultMap>
+
+    <select id="getzkyxzydata" resultMap="zkyxmap">
+        SELECT * FROM
+        (
+        SELECT A.*, ROWNUM RN
+        FROM (SELECT * FROM LK_ZKYXZY) A
+        WHERE ROWNUM &lt;=#{limit}
+        )
+        WHERE RN &gt;=#{page}
+    </select>
+
+    <select id="getzkzylbdata" resultMap="zylbmap">
+      select * from LK_ZKZYLB
+    </select>
+
+    <select id="getzkyxzycount"  resultType="int">
+       select  count(1) from LK_ZKYXZY
+    </select>
+
+    <select id="getzkyxzylb" resultMap="zylbmap">
+        select  * from  LK_ZKZYLB
+    </select>
+</mapper>

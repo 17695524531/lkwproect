@@ -1,0 +1,33 @@
+package com.szht.serviceimpl;
+
+import com.szht.dao.HomePageDao;
+import com.szht.po.Zkyxzy;
+import com.szht.po.Zkzylb;
+import com.szht.service.HomePageService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service("homepageservice")
+public class HomePageServieImpl implements HomePageService {
+    @Autowired
+    private HomePageDao homePageDao;
+
+    @Override
+    public List<Zkyxzy> getzkyxzydata(Integer page,Integer limit) {
+        Integer pagesize=(page-1)*limit+1;
+        Integer rowcount=page*limit;
+        return homePageDao.getzkyxzydata(pagesize,rowcount);
+    }
+
+    @Override
+    public List<Zkzylb> getzkzylbdata() {
+        return homePageDao.getzkzylbdata();
+    }
+
+    @Override
+    public int getzkyxzycount() {
+        return homePageDao.getzkyxzycount();
+    }
+}

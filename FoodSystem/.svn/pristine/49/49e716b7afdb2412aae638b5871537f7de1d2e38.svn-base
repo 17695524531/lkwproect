@@ -1,0 +1,34 @@
+package com.szht.dao;
+
+import com.szht.po.*;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+
+public interface HomePageDao {
+    List<Zkyxzy> getzkyxzydata(@Param("page") Integer page,@Param("limit") Integer limit);
+
+    List<Zkzylb> getzkzylbdata();
+
+    int getzkyxzycount();
+
+    List<Zkzylb> getzkyxzylb();
+
+    List<Zkuserzyk> getUserxkzyByphone(String userphone);
+
+    String getUserzykDmByname(String lbmc);
+
+    int saveUserZkZy(@Param("id") String id, @Param("userzyklbdm") String userzyklbdm, @Param("zymc") String zymc, @Param("zyxs") String zyxs, @Param("userphone") String userphone, @Param("userzygrad") String userzygrad);
+
+    List<Zkyxzy> queryzkkc(@Param("lb") String lb, @Param("zymc") String zymc, @Param("xs") String xs);
+
+    List<Zkyxzy> getqueryzkyxzydata(@Param("page") Integer page,@Param("limit") Integer limit,@Param("lb") String lbmc, @Param("zymc") String zymc, @Param("xs") String xs);
+
+    int getZykQueryCount(@Param("lb") String lb, @Param("zy") String zy, @Param("xsmc") String xsmc);
+
+    List<Bkzylb> getbkyxzylb();
+
+    List<Bkyxzy> getzqbzydata(@Param("page") Integer pagesize, @Param("limit") Integer limit);
+
+    int getzqbzycount();
+}

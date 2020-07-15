@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.szht.dao.HomePageDao">
+    <resultMap id="zkyxmap" type="com.szht.po.Zkyxzy">
+        <id property="id" column="ID"></id>
+        <result property="zylb" column="ZK_ZYLB"></result>
+        <result property="zymc" column="ZK_ZYMC"></result>
+        <result property="zyxs" column="ZK_ZYXS"></result>
+    </resultMap>
+
+    <resultMap id="zylbmap" type="com.szht.po.Zkzylb">
+        <id property="id" column="ID"></id>
+        <result property="zylbdm" column="ZK_ZYLBDM"></result>
+        <result property="zylbmc" column="ZK_ZYLBMC"></result>
+    </resultMap>
+    <resultMap id="zkusrezykmap" type="com.szht.po.Zkuserzyk">
+        <id property="id" column="ID"></id>
+        <result property="userzyklbdm" column="ZK_USERZYKLBDM"></result>
+        <result property="userzyklbmc" column="ZK_USERZYKLBMC"></result>
+        <result property="userzykxs" column="ZK_USERZYKXS"></result>
+        <result property="userphone" column="ZK_USERPHONE"></result>
+        <result property="userzygrad" column="ZK_USERZYGRAD"></result>
+    </resultMap>
+
+    <select id="getzkyxzydata" resultMap="zkyxmap">
+        SELECT * FROM
+        (
+        SELECT A.*, ROWNUM RN
+        FROM (SELECT * FROM LK_ZKYXZY) A
+        WHERE ROWNUM &lt;=#{limit}
+        )
+        WHERE RN &gt;=#{page}
+    </select>
+
+    <select id="getzkzylbdata" resultMap="zylbmap">
+      select * from LK_ZKZYLB
+    </select>
+
+    <select id="getzkyxzycount" resultType="int">
+       select  count(1) from LK_ZKYXZY
+    </select>
+
+    <select id="getzkyxzylb" resultMap="zylbmap">
+        select  * from  LK_ZKZYLB
+    </select>
+
+    <select id="getUserxkzyByphone" parameterType="string" resultMap="zkusrezykmap">
+        select  *  from LK_ZKUSERZYK t  where  t.ZK_USERPHONE=#{userphone}
+    </select>
+
+    <select id="getUserzykDmByname" parameterType="string" resultType="string">
+      select  t.ZK_ZYLBDM from  LK_ZKZYLB t where  t.ZK_ZYLBMC=#{lbmc}
+    </select>
+
+     <select id="getqueryzkyxzydata" resultMap="zkyxmap">
+        SELECT * FROM
+        (
+        SELECT A.*, ROWNUM RN
+        FROM (SELECT * FROM LK_ZKYXZY) A
+        WHERE ROWNUM &lt;=#{limit}
+        )
+        WHERE RN &gt;=#{page}
+         <if test='lb!="00" and lb!=null'>
+             and t.ZK_ZYLB=#{lb}
+         </if>
+
+         <if test='zymc!="" and zymc!=null'>
+             and t.ZK_ZYMC like concat(concat('%',#{zymc}),'%')
+         </if>
+
+         <if test='xs!="" and xs!=null'>
+             and t.ZK_ZYXS like concat(concat('%',#{xs}),'%')
+         </if>
+     </select>
+
+    <!--<select id="queryzkkc" resultMap="zkyxmap">
+        select * from LK_ZKYXZY t where 1=1
+            <if test='lb!="00" and lb!=null'>
+                and t.ZK_ZYLB=#{lb}
+            </if>
+
+            <if test='zymc!="" and zymc!=null'>
+                and t.ZK_ZYMC like concat(concat('%',#{zymc}),'%')
+            </if>
+
+            <if test='xs!="" and xs!=null'>
+                and t.ZK_ZYXS like concat(concat('%',#{xs}),'%')
+            </if>
+    </select>-->
+
+    <insert id="saveUserZkZy">
+        insert into  LK_ZKUSERZYK t(t.ID,t.ZK_USERZYKLBDM,t.ZK_USERZYKLBMC,t.ZK_USERZYKXS,t.ZK_USERPHONE,t.ZK_USERZYGRAD)
+        values (#{id},#{userzyklbdm},#{zymc},#{zyxs},#{userphone},#{userzygrad})
+    </insert>
+</mapper>

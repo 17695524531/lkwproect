@@ -1,0 +1,15 @@
+package com.szht.dao;
+
+import com.szht.po.Zkyxzy;
+import com.szht.po.Zkzylb;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+
+public interface HomePageDao {
+    List<Zkyxzy> getzkyxzydata(@Param("page") int page,@Param("limit") int limit);
+
+    List<Zkzylb> getzkzylbdata();
+
+    int getzkyxzycount();
+}

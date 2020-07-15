@@ -1,0 +1,14 @@
+package com.szht.service;
+
+import com.szht.po.Zkyxzy;
+import com.szht.po.Zkzylb;
+
+import java.util.List;
+
+public interface HomePageService {
+    List<Zkyxzy> getzkyxzydata(Integer page,Integer limit);
+
+    List<Zkzylb> getzkzylbdata();
+
+    int getzkyxzycount();
+}

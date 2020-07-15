@@ -1,0 +1,211 @@
+package com.szht.controller;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.szht.po.*;
+import com.szht.service.HomePageService;
+import com.szht.utils.UUidUtils;
+import net.sf.json.JSONArray;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import javax.annotation.Resource;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import javax.xml.transform.Source;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.math.MathContext;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+@Controller
+public class HomePageController {
+    @Resource(name = "homepageservice")
+    private HomePageService homePageService;
+    @Autowired
+    private UUidUtils uUidUtils;
+
+    @RequestMapping(value = "/gocrgkpage", method = RequestMethod.GET)
+    public String gocrgkpage(
+            @RequestParam(value = "f") String f,
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
+        String url = null;
+        String path = request.getContextPath();
+        String basePath = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + path;
+        if (f != null && "crgk".equals(f)) {
+            url = basePath + "/img/crgk.jpg";
+        } else if (f != null && "wljy".equals(f)) {
+            url = basePath + "/img/wljy.jpg";
+        } else if (f != null && "gjkfdx".equals(f)) {
+            url = basePath + "/img/gjkfdx.jpg";
+        } else if (f != null && "zk".equals(f)) {
+            url = basePath + "/img/zk.jpg";
+        }
+        if (url != null) {
+            request.setAttribute("imgUrl", url);
+        }
+        return "crgkpage";
+    }
+
+    @RequestMapping(value = "/gozygqz", method = RequestMethod.GET)
+    public String gozygqz(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
+        return "zygqzpage";
+    }
+
+    @RequestMapping(value = "/getzkzydata", method = RequestMethod.GET)
+    public String getzkzydata(
+            Integer page,
+            Integer limit,
+            HttpServletResponse response,
+            HttpServletRequest request
+    ) {
+        response.setContentType("text/html;charset=utf-8");
+        response.setCharacterEncoding("UTF-8");
+        List<Zkyxzy> yxzyresult=new ArrayList<>();
+        yxzyresult= homePageService.getzkyxzydatanoquery(page, limit);
+        List<Zkzylb> zylb = homePageService.getzkzylbdata();
+        int count = homePageService.getzkyxzycount();
+        List<Zkalldata> resultList = new ArrayList<>();
+        HashMap<String, Object> resultmap = new HashMap<>();
+        for (Zkzylb lb : zylb) {
+            for (Zkyxzy zy : yxzyresult) {
+                if (lb.getZylbdm().equals(zy.getZylb())) {
+                    Zkalldata zkalldata = new Zkalldata();
+                    zkalldata.setZylbmc(lb.getZylbmc());
+                    zkalldata.setZymc(zy.getZymc());
+                    zkalldata.setZyxs(zy.getZyxs());
+                    resultList.add(zkalldata);
+                }
+            }
+        }
+        resultmap.put("code", 0);
+        resultmap.put("mg", "");
+        resultmap.put("count", count);
+        JSONArray array = JSONArray.fromObject(resultList);
+        resultmap.put("data", array);
+        PrintWriter writer = null;
+        try {
+            writer = response.getWriter();
+            writer.println(JSONObject.toJSONString(resultmap));
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            writer.flush();
+            writer.close();
+        }
+        return null;
+    }
+
+    @RequestMapping(value = "/getzkyxzylb", method = RequestMethod.POST)
+    public String getzkyxzylb(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
+        response.setContentType("text/html;charset=utf-8");
+        response.setCharacterEncoding("utf-8");
+        List<Zkzylb> lbList = homePageService.getzkyxzylb();
+        PrintWriter writer = null;
+        try {
+            writer = response.getWriter();
+            if (lbList.size() > 0) {
+                writer.println(JSONObject.toJSONString(lbList));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            writer.flush();
+            writer.close();
+        }
+        return null;
+    }
+
+    @RequestMapping(value = "/checkUserisxk", method = RequestMethod.POST)
+    public String checkUserisxk(
+            @RequestParam("lbmc") String lbmc,
+            @RequestParam("zymc") String zymc,
+            @RequestParam("zyxs") String zyxs,
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
+        response.setContentType("text/html;charset=utf-8");
+        response.setCharacterEncoding("utf-8");
+        HttpSession session = request.getSession();
+        PrintWriter writer = null;
+        try {
+            writer = response.getWriter();
+            if (session == null) {
+                writer.println("sn");
+            } else if (session != null) {
+                User user = (User) session.getAttribute("user");
+                List<Zkuserzyk> zkuserzyList = homePageService.getUserxkzyByphone(user.getUserphone());
+                if (zkuserzyList.size() > 0) {
+                    ArrayList<Zkuserzyk> list = new ArrayList<>();
+                    HashMap<String, Object> resultMap = new HashMap<>();
+                    for (Zkuserzyk zyk : zkuserzyList) {
+                        Zkuserzyk zkuserzyk = new Zkuserzyk();
+                        zkuserzyk.setUserzyklbmc(zyk.getUserzyklbmc());
+                        zkuserzyk.setUserzygrad(zyk.getUserzygrad());
+                        list.add(zkuserzyk);
+                    }
+                    resultMap.put("msg", "yx");
+                    resultMap.put("zydata", list);
+                    writer.println(JSONObject.toJSONString(resultMap));
+                } else if (zkuserzyList.size() <= 0) {
+                    //没选课，开始存储课城
+                    String userzyklbdm = homePageService.getUserzykDmByname(lbmc);
+                    String userphone = user.getUserphone();
+                    String userzygrad = "专科";
+                    String id = uUidUtils.getUUid();
+                    int flag = homePageService.saveUserZkZy(id, userzyklbdm, zymc, zyxs, userphone, userzygrad);
+                    HashMap<String, Object> map = new HashMap<>();
+                    if (flag > 0) {
+                        map.put("msg", "suc");
+                        writer.println(JSONObject.toJSONString(map));
+                    } else {
+                        map.put("msg", "n");
+                        writer.println(JSONObject.toJSONString(map));
+                    }
+                }
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            writer.flush();
+            writer.close();
+        }
+        return null;
+    }
+
+   /* @RequestMapping(value = "/queryzkkc", method = RequestMethod.POST)
+    public String queryzkkc(
+            @RequestParam("lb") String lb,
+            @RequestParam("zymc") String zymc,
+            @RequestParam("xs") String xs,
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) throws  Exception {
+        response.setContentType("text/html;charset=utf-8");
+        response.setCharacterEncoding("utf-8");
+        PrintWriter writer = response.getWriter();
+        List<Zkyxzy> querydata=homePageService.queryzkkc(lb,zymc,xs);
+        HashMap<String, Object> resultMap = new HashMap<>();
+        resultMap.put("querydata",querydata);
+        writer.println(JSONObject.toJSONString(resultMap));
+        writer.flush();
+        writer.close();
+        return null;
+    }*/
+}

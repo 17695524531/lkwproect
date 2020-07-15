@@ -1,0 +1,144 @@
+body,html{
+	margin: 0px;
+	padding: 0px;
+	height: 100%;
+	width: 100%;
+	background-size: 100% 100%;
+	background-repeat: no-repeat;
+}
+
+#app{
+	margin: 0px;
+	padding: 0px;
+	width: 100%;
+	height: 100%;
+}
+.layui-container{
+	margin: 0px;
+	padding: 0px;
+	width: 100%;
+	height: 100%;
+}
+.layui-row{
+	margin: 0px;
+	padding: 0px;
+	width: 100%;
+	height: 100%;
+}
+#left{
+	margin: 0px;
+	padding: 0px;
+	width: 100%;
+	height: 100%;
+	min-width: 850px;
+}
+.page-leftbody{
+	margin: 0px;
+	padding: 0px;
+	width: 100%;
+	height: 100%;
+}
+#page-image{
+	width: 100%;
+	height: 100%;
+}
+#right{
+	position: absolute;
+	z-index: 5;
+	right:0%;
+	width: 100%;
+	height: 100%;
+}
+.page-rightbody{
+	margin-left: 70%;
+	margin-top: -3%;
+}
+.page-rightbody-login-page{
+    margin-top: 20%;
+	margin-left: -57%;
+	min-width: 645px;
+}
+.layui-card{
+	z-index: 500;
+	width: 55%;
+	height:70%;
+	position: absolute;
+	top: 60px;
+	right:100px;
+	left: 400px;
+	box-shadow: 3px 5px 20px #CACACD ;
+	min-width: 600px;
+	min-height: 400px;
+}
+.layui-card-header span{
+	font-weight: 600;
+	font-size: 16px;
+}
+.layui-card-body{
+	padding-right: 50px;
+	margin-top: 70px;
+}
+.loginbtn{
+	width: 100%;
+}
+.login-tishi .forgetpass{
+	margin-left: 80%;
+}
+.login-tishi a{
+	text-decoration: none;
+}
+.downfgx{
+	width: 100%;
+	height: 1px;
+	background: #F6F6F6;
+	!important;
+}
+.otherloginway{
+	position: absolute;
+	margin: auto;
+	margin-left: 14%;
+
+}
+.otherloginspan{
+	color: #999999;
+	!important;
+}
+.loginwayother{
+	margin-left: 10%;
+	height: 30px;
+	width: 100%;
+	line-height: 100%;
+}
+.login-footer{
+	height: 40px;
+	margin-bottom: 5%;
+}
+
+.loginwayother i{
+	margin-left: 5%;
+	font-size: 17px;
+	font-weight: 500;
+}
+.el-dialog__body{
+	padding-left: 15%;
+	padding-right: 15%;
+}
+#dxloginbtn{
+	width: 100%;
+}
+.yzmsg{
+	color:#43C4CA;
+}
+.el-loading-mask{
+	background-color: rgba(48,47,47,0.6);
+}
+.el-loading-spinner i{
+	color: black;
+	font-size: 35px;
+}
+.el-loading-spinner{
+	background: white;
+	align-content: center;
+	width: 10%;
+	margin-left: 40%;
+}
